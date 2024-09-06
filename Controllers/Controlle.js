@@ -1,4 +1,4 @@
-const User = require("./Model/UserModel.js");
+const User = require("../Model/UserModel.js");
 
 const CreateUser = async (req,res)=>{
     try{
@@ -53,7 +53,7 @@ const DeleteUser = async (req,res)=>{
     }
 }
 
-const updateUser = async (req,res)=>{
+const UpdateUser = async (req,res)=>{
     try{
     const id = req.params.id;
 
@@ -75,4 +75,4 @@ const updateUser = async (req,res)=>{
     }
 }
 
-module.exports = {CreateUser,FindUser,DeleteUser,updateUser}
+module.exports = {CreateUser,FindUser,DeleteUser,UpdateUser}
