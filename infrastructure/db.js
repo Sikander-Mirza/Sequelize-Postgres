@@ -1,5 +1,4 @@
-const { Sequelize, DataTypes, where } = require("sequelize");
-
+const { Sequelize } = require("sequelize");
 
 const sequelize = new Sequelize("item_master", "postgres", "admin", {
     host: "localhost",
