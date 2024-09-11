@@ -3,7 +3,9 @@ const app = express();
 const sequelize = require('./infrastructure/db.js');
 const router = require('./Routes/Route.js');
 const path = require("path")
-
+const companyRoutes = require('./Routes/CompanyRoute.js');
+const userRoutes = require("./Routes/UserManagementRoute.js")
+const MenuRoutes = require("./Routes/MenuRoute.js")
 app.use(express.json());
 
 // Use the router for handling '/users' routes
@@ -13,6 +15,9 @@ app.use('/users', router);
 app.get("/", (req, res) => {
   res.send("Hello World");
 });
+app.use(companyRoutes);
+app.use(userRoutes)
+app.use(MenuRoutes)
 
 // Start the server
 const PORT = 9000;

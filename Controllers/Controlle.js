@@ -3,8 +3,10 @@ const ClientModel = require("../Model/ClientModel.js")
 const SignerModel = require("../Model/SignerMode.js")
 const ScheduleDate = require("../Model/ScheduleModel.js")
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('../config/CloudinaryConfig.js'); // Import Cloudinary configuration
+const FileModel = require('../Model/FileModel.js'); // Adjust the path as needed
+
 
 const CreateUser = async (req, res) => {
   try {
@@ -150,34 +152,71 @@ const CreateSchedule = async(req,res)=>{
 }
 
 
-const uploadDir = path.join(__dirname, '../uploads');
-
-// Ensure the uploads directory exists
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-// Configure multer storage options
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, uploadDir);
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname));
-    }
-});
-
-// Initialize multer with storage configuration
+const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-// Controller function to handle file upload
-const uploadFile = (req, res) => {
-    upload.single('file')(req, res, function (err) {
-        if (err) {
-            return res.status(500).json({ message: 'File upload failed', error: err.message });
-        }
-        res.status(200).json({ message: 'File uploaded successfully', file: req.file });
-    });
+// Controller function to handle file upload and store it in the database
+const uploadFile = async (req, res) => {
+    try {
+        // Handle file upload with multer
+        upload.single('file')(req, res, async function (err) {
+            if (err) {
+                console.error('Upload error:', err);
+                return res.status(500).json({ message: 'File upload failed', error: err.message });
+            }
+
+            if (!req.file) {
+                return res.status(400).json({ message: 'No file uploaded' });
+            }
+
+            // Extract data from req.file
+            const { originalname, buffer, mimetype } = req.file;
+
+            // Store file data in the database
+            await FileModel.create({
+                fileName: originalname,
+                fileData: buffer, // Store file data as BLOB
+                fileType: mimetype,
+            });
+
+            res.status(200).json({ message: 'File uploaded successfully', file: { name: originalname, type: mimetype } });
+        });
+    } catch (error) {
+        console.error('Error uploading file:', error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
 };
 
-module.exports = {CreateUser,FindUser,DeleteUser,UpdateUser,CreateClient,CreateSigner,CreateSchedule,uploadFile}
+
+
+
+const getFile = async (req, res) => {
+  try {
+    const fileName = req.params.name; // Get the file name from the URL parameters
+
+    console.log('Requested file name:', fileName); // Debugging log to check if file name is received correctly
+
+    // Retrieve the file from the database using Sequelize
+    const fileRecord = await FileModel.findOne({ where: { fileName } });
+
+    if (!fileRecord) {
+      console.log('File not found in database.'); // Debug log to check if file is missing
+      return res.status(404).json({ message: 'File not found' }); // Return 404 if not found
+    }
+
+    console.log('File record found:', fileRecord); // Debug log to check file data
+
+    // Set the appropriate Content-Type and Content-Disposition headers
+    res.setHeader('Content-Type', fileRecord.fileType);
+    res.setHeader('Content-Disposition', `attachment; filename="${fileRecord.fileName}"`);
+
+    // Send the binary data as the response
+    res.send(fileRecord.fileData); // Ensure this line sends the binary data correctly
+  } catch (error) {
+    console.error('Error retrieving file:', error);
+    res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+};
+
+  
+module.exports = {CreateUser,FindUser,DeleteUser,UpdateUser,CreateClient,CreateSigner,CreateSchedule,uploadFile,getFile}
