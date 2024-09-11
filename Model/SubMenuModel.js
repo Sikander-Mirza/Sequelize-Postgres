@@ -1,14 +1,11 @@
 const {DataTypes} = require("sequelize");
 const sequelize = require("../infrastructure/db.js")
 
-const MenuModel = sequelize.define("Menu", {
-    MenuName: {
+const SubMenuModel = sequelize.define("SubMenu", {
+    SubMenuName: {
       type: DataTypes.STRING, 
     },
-    MenuIcon: {
-      type: DataTypes.STRING, 
-    },
-    MenuUrl: {
+    SubMenuUrl: {
       type: DataTypes.STRING, 
     },
     Status:{
@@ -19,6 +16,6 @@ const MenuModel = sequelize.define("Menu", {
 }
   });
   
-  module.exports = MenuModel
+  module.exports = SubMenuModel
 
   

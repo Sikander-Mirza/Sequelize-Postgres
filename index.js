@@ -6,6 +6,7 @@ const path = require("path")
 const companyRoutes = require('./Routes/CompanyRoute.js');
 const userRoutes = require("./Routes/UserManagementRoute.js")
 const MenuRoutes = require("./Routes/MenuRoute.js")
+const SubMenuRoutes = require("./Routes/SubMenuRoute.js")
 app.use(express.json());
 
 // Use the router for handling '/users' routes
@@ -18,6 +19,7 @@ app.get("/", (req, res) => {
 app.use(companyRoutes);
 app.use(userRoutes)
 app.use(MenuRoutes)
+app.use(SubMenuRoutes)
 
 // Start the server
 const PORT = 9000;

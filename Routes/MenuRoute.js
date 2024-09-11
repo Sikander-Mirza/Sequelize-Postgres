@@ -8,8 +8,6 @@ router.post('/menus', MenuController.createMenu);
 // Get all menu items
 router.get('/menus', MenuController.getAllMenus);
 
-
-
 // Update an existing menu item by ID
 router.put('/menus/:id', MenuController.updateMenu);
 
