@@ -4,6 +4,7 @@ const sequelize = require("../infrastructure/db.js")
 
 
 const ScheduleModel = sequelize.define("Schedule", {
+
     JobDate: {
       type: DataTypes.DATE, 
     },

@@ -2,6 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../infrastructure/db.js");
 
 const ClientModel = sequelize.define("Client", {
+
     titleCompany: {
         type: DataTypes.ENUM, 
         values: [
