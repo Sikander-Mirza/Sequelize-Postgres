@@ -157,35 +157,49 @@ const upload = multer({ storage: storage });
 
 // Controller function to handle file upload and store it in the database
 const uploadFile = async (req, res) => {
-    try {
-        // Handle file upload with multer
-        upload.single('file')(req, res, async function (err) {
-            if (err) {
-                console.error('Upload error:', err);
-                return res.status(500).json({ message: 'File upload failed', error: err.message });
-            }
+  try {
+      // Retrieve clientId from the request headers
+      const clientId = req.params.clientId; // Use route parameter
 
-            if (!req.file) {
-                return res.status(400).json({ message: 'No file uploaded' });
-            }
+      if (!clientId) {
+          return res.status(400).json({ message: 'clientId is required in headers' });
+      }
 
-            // Extract data from req.file
-            const { originalname, buffer, mimetype } = req.file;
+      // Handle file upload with multer
+      upload.single('file')(req, res, async function (err) {
+          if (err) {
+              console.error('Upload error:', err);
+              return res.status(500).json({ message: 'File upload failed', error: err.message });
+          }
 
-            // Store file data in the database
-            await FileModel.create({
-                fileName: originalname,
-                fileData: buffer, // Store file data as BLOB
-                fileType: mimetype,
-            });
+          if (!req.file) {
+              return res.status(400).json({ message: 'No file uploaded' });
+          }
 
-            res.status(200).json({ message: 'File uploaded successfully', file: { name: originalname, type: mimetype } });
-        });
-    } catch (error) {
-        console.error('Error uploading file:', error);
-        res.status(500).json({ message: 'Internal server error', error: error.message });
-    }
+          // Extract data from req.file
+          const { originalname, buffer, mimetype } = req.file;
+
+          try {
+              // Store file data in the database with the associated clientId
+              await FileModel.create({
+                  fileName: originalname,
+                  fileData: buffer, // Store file data as BLOB
+                  fileType: mimetype,
+                  clientId: clientId, // Associate with clientId
+              });
+
+              res.status(200).json({ message: 'File uploaded successfully', file: { name: originalname, type: mimetype } });
+          } catch (dbError) {
+              console.error('Error saving file data to database:', dbError);
+              return res.status(500).json({ message: 'Failed to save file data', error: dbError.message });
+          }
+      });
+  } catch (error) {
+      console.error('Error uploading file:', error);
+      res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
 };
+
 
 
 
@@ -218,5 +232,71 @@ const getFile = async (req, res) => {
   }
 };
 
-  
-module.exports = {CreateUser,FindUser,DeleteUser,UpdateUser,CreateClient,CreateSigner,CreateSchedule,uploadFile,getFile}
+const getSignerAndClientInfo = async (req, res) => {
+  try {
+    const signers = await SignerModel.findAll({
+      include: [
+        {
+          model: ClientModel,
+          attributes: ['AddressOne', 'City'], 
+        },
+      ],
+      attributes: ['SignerName', 'SignerEmail', 'PhoneNumber'], 
+    });
+
+    console.log(signers); 
+    res.status(200).json(signers);
+  } catch (error) {
+    console.error('Error fetching signer and client info:', error.message);
+    res.status(500).json({ error: 'Error fetching signer and client info' });
+  }
+};
+
+
+const getClientDetails = async (req, res) => {
+  try {
+    const clients = await ClientModel.findAll({
+      include: [
+        {
+          model: SignerModel,
+          attributes: ['SignerName', 'SignerEmail', 'PhoneNumber'],
+        },
+        {
+          model: ScheduleDate,
+          attributes: ['ScheduleTime'],
+        },
+        {
+          model: FileModel,
+          attributes: ['fileName'],
+        },
+      ],
+      attributes: ['titleCompany', 'ClosingType'],
+    });
+
+    // Transform the data to the desired format
+    const result = clients.map((client) => {
+      return {
+        titleCompany: client.titleCompany,
+        ClosingType: client.ClosingType,
+        SignerName: client.Signers[0]?.SignerName || null, // Get the first signer
+        SignerEmail: client.Signers[0]?.SignerEmail || null,
+        PhoneNumber: client.Signers[0]?.PhoneNumber || null,
+        ScheduleTime: client.Schedules[0]?.ScheduleTime || null, // Get the first schedule
+        DocumentUploaded: client.Files && client.Files.length > 0, // Check if any document is uploaded
+      };
+    });
+
+    // Send the transformed data as the response
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Error fetching client details with signer and schedule:', error.message);
+    res.status(500).json({ error: 'Error fetching client details with signer and schedule' });
+  }
+};
+
+
+
+
+
+
+module.exports = {CreateUser,FindUser,DeleteUser,UpdateUser,CreateClient,CreateSigner,CreateSchedule,uploadFile,getFile,getSignerAndClientInfo,getClientDetails}

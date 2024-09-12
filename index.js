@@ -8,6 +8,10 @@ const userRoutes = require("./Routes/UserManagementRoute.js")
 const MenuRoutes = require("./Routes/MenuRoute.js")
 const SubMenuRoutes = require("./Routes/SubMenuRoute.js")
 const ServiceRoutes = require("./Routes/ServiceRoute.js")
+const ClientModel = require("./Model/ClientModel.js")
+const SignerModel = require("./Model/SignerMode.js")
+const ScheduleModel = require("./Model/ScheduleModel.js")
+const FileModel = require("./Model/FileModel.js")
 app.use(express.json());
 
 // Use the router for handling '/users' routes
@@ -23,6 +27,15 @@ app.use(MenuRoutes)
 app.use(SubMenuRoutes)
 app.use(ServiceRoutes)
 
+
+ClientModel.hasMany(SignerModel, { foreignKey: 'clientId', onDelete: 'CASCADE' });
+SignerModel.belongsTo(ClientModel, { foreignKey: 'clientId' });
+
+ClientModel.hasMany(ScheduleModel, { foreignKey: 'clientId', onDelete: 'CASCADE' });
+ScheduleModel.belongsTo(ClientModel, { foreignKey: 'clientId' });
+
+ClientModel.hasMany(FileModel, { foreignKey: 'clientId', onDelete: 'CASCADE' });
+FileModel.belongsTo(ClientModel, { foreignKey: 'clientId' });
 // Start the server
 const PORT = 9000;
 app.listen(PORT, () => {

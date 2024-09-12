@@ -1,22 +1,31 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../infrastructure/db.js');
-const Sequelize = require("sequelize")
-const FileModel = sequelize.define('File', {
+const ClientModel = require('./ClientModel'); // Import the ClientModel to create associations
 
-    fileName: {
-        type: DataTypes.STRING,
-        allowNull: false
+const FileModel = sequelize.define('File', {
+  fileName: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  fileData: {
+    type: DataTypes.BLOB, 
+    allowNull: false
+  },
+  fileType: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  clientId: {  // Foreign key reference to Client
+    type: DataTypes.INTEGER,
+    references: {
+      model: ClientModel,
+      key: 'id'
     },
-    fileData: {
-        type: Sequelize.BLOB, 
-        allowNull: false
-    },
-    fileType: {
-        type: DataTypes.STRING,
-        allowNull: false
-    }
+    allowNull: false,
+    onDelete: 'CASCADE'
+  }
 }, {
-    timestamps: true 
+  timestamps: true 
 });
 
 module.exports = FileModel;
