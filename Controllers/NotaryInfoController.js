@@ -26,17 +26,18 @@ console.log(id,Name)
         fileName: files['signature'][0].originalname,
         fileData: files['signature'][0].buffer,
         fileType: files['signature'][0].mimetype,
-        userId: id, // Correct field name
-      });
+        Id:id,
+            });
     }
 
     // Check and upload 'initials' file
     if (files['initials']) {
       await NotaryFileModel.create({
+        Id:id,
         fileName: files['initials'][0].originalname,
         fileData: files['initials'][0].buffer,
         fileType: files['initials'][0].mimetype,
-        userId: id, // Correct field name
+       
       });
     }
 
@@ -53,4 +54,71 @@ console.log(id,Name)
   }
 };
 
-module.exports = multipleUpload;
+
+
+
+// Get NotaryInfo with associated files
+const getNotaryInfo = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find the NotaryInfo by id
+    const notaryInfo = await NotaryInfo.findByPk(id);
+
+    if (!notaryInfo) {
+      return res.status(404).json({ message: "Notary info not found" });
+    }
+
+    // Find associated files and select only fileName
+    const notaryFiles = await NotaryFileModel.findAll({
+      attributes: ['fileName'],  // Only select the fileName field
+      where: { Id: id }       // Ensure this matches the field name used in your NotaryFileModel
+    });
+
+    // Extract file names from the result
+    const fileNames = notaryFiles.map(file => file.fileName);
+
+    // Combine the results
+    const response = {
+      notaryInfo,
+      fileNames
+    };
+
+    res.status(200).json(response);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error fetching notary info" });
+  }
+};
+
+
+
+
+const deleteNotaryInfo = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // First, delete associated files
+    await NotaryFileModel.destroy({
+      where: { Id: id },
+    });
+
+    // Then, delete the notary info
+    const notaryInfo = await NotaryInfo.destroy({
+      where: { id },
+    });
+
+    if (notaryInfo === 0) {
+      return res.status(404).json({ message: "Notary info not found" });
+    }
+
+    res.status(200).json({ message: "Notary info and associated files deleted successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error deleting notary info and files" });
+  }
+};
+
+
+
+module.exports = {multipleUpload,getNotaryInfo,deleteNotaryInfo};

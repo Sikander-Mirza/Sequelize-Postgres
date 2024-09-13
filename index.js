@@ -32,8 +32,7 @@ app.use(ServiceRoutes);
 
 app.use(NotayInfoRoutes);
 
-NotaryInfo.hasMany(FileNotary, { foreignKey: 'notaryInfoId' });
-FileNotary.belongsTo(NotaryInfo, { foreignKey: 'notaryInfoId' });
+
 
 
 ClientModel.hasMany(SignerModel, {
