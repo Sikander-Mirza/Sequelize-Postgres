@@ -12,8 +12,8 @@ const ClientModel = require("./Model/ClientModel.js");
 const SignerModel = require("./Model/SignerMode.js");
 const ScheduleModel = require("./Model/ScheduleModel.js");
 const FileModel = require("./Model/FileModel.js");
-const NotaryFileModel = require("./Model/NotaryFiless.js");
 const NotaryInfo = require("./Model/NotaryModel.js");
+const FileNotary = require("./Model/FileModel.js")
 const NotayInfoRoutes = require("./Routes/NotaryInfoRoute.js");
 app.use(express.json());
 
@@ -29,19 +29,12 @@ app.use(userRoutes);
 app.use(MenuRoutes);
 app.use(SubMenuRoutes);
 app.use(ServiceRoutes);
+
 app.use(NotayInfoRoutes);
 
-// In NotaryInfo model file
-NotaryInfo.hasMany(NotaryFileModel, {
-  foreignKey: "userId",
-  as: "notaryFiles", // Use a unique alias like 'notaryFiles'
-});
+NotaryInfo.hasMany(FileNotary, { foreignKey: 'notaryInfoId' });
+FileNotary.belongsTo(NotaryInfo, { foreignKey: 'notaryInfoId' });
 
-// In NotaryFileModel file
-NotaryFileModel.belongsTo(NotaryInfo, {
-  foreignKey: "userId",
-  as: "notaryInfo", // Use a unique alias like 'notaryInfo'
-});
 
 ClientModel.hasMany(SignerModel, {
   foreignKey: "clientId",
@@ -72,19 +65,11 @@ sequelize
     console.log("Connected to the database successfully.");
 
     // Sync the database and create tables if they don't exist
-    return sequelize.sync({ force: true }); // Use force: true for development if you need to recreate the tables
+    return sequelize.sync({ alter: true }); // Use force: true for development if you need to recreate the tables
   })
   .then(() => {
     console.log("Database & tables created!");
   })
   .catch((err) => {
     console.error("Error connecting to the database or creating tables:", err);
-  });
-
-NotaryInfo.sync({ alter: true })
-  .then(() => {
-    console.log("NotaryInfo table created/updated in the database.");
-  })
-  .catch((err) => {
-    console.error("Error creating/updating the NotaryInfo table:", err);
   });
