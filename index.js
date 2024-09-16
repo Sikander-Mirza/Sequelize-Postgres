@@ -12,8 +12,6 @@ const ClientModel = require("./Model/ClientModel.js");
 const SignerModel = require("./Model/SignerMode.js");
 const ScheduleModel = require("./Model/ScheduleModel.js");
 const FileModel = require("./Model/FileModel.js");
-const NotaryInfo = require("./Model/NotaryModel.js");
-const FileNotary = require("./Model/FileModel.js")
 const NotayInfoRoutes = require("./Routes/NotaryInfoRoute.js");
 app.use(express.json());
 

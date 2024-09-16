@@ -54,7 +54,27 @@ console.log(id,Name)
   }
 };
 
+const uploadFile = async(req,res)=>{
+  try{
+    const file = req.files
 
+    if(!file){
+        return res.status(400).json({ message: "No file uploaded" });
+    }
+    if(file["yahoo"]){
+      await NotaryFileModel.create({
+      fileName: file["yahoo"][0].originalname,
+      fileData: file["yahoo"][0].buffer,
+      fileType: file["yahoo"][0].mimetype,
+    })
+    }
+    res.status(201).json({message:"file uploaded successfully"})
+
+  }catch(err){
+    console.error(err);
+    res.status(500).json({ error: "Error uploading file" });
+  }
+}
 
 
 // Get NotaryInfo with associated files
@@ -170,4 +190,4 @@ const updateNotaryInfo = async (req, res) => {
   }
 };
 
-module.exports = {multipleUpload,getNotaryInfo,deleteNotaryInfo,updateNotaryInfo};
+module.exports = {multipleUpload,getNotaryInfo,deleteNotaryInfo,updateNotaryInfo,uploadFile};

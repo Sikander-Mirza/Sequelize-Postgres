@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../infrastructure/db.js');
-
 const NotaryFileModel = sequelize.define('FileNotary', {
   Id:{
     type: DataTypes.INTEGER,
@@ -22,6 +21,5 @@ const NotaryFileModel = sequelize.define('FileNotary', {
   timestamps: true,
 });
 
-// Define the association
 
 module.exports = NotaryFileModel;

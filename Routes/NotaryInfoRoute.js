@@ -5,31 +5,36 @@ const {
   multipleUpload,
   getNotaryInfo,
   deleteNotaryInfo,
-  updateNotaryInfo
+  updateNotaryInfo,
+  uploadFile
 } = require("../Controllers/NotaryInfoController"); // Update with the correct path
 
-// Set up multer for file handling
-const storage = multer.memoryStorage(); // Store files in memory buffer
-const upload = multer({ storage });
 
-// Route for handling both text data and multiple file uploads
+
+
+const storage = multer.memoryStorage();
+const upload = multer({storage})
+
 router.post('/NotaryInfo', upload.fields([
-  { name: 'signature', maxCount: 1 },  // Field names must match your form data
+  { name: 'signature', maxCount: 1 },  
   { name: 'initials', maxCount: 1 },
-  // Add more fields as needed
+  
 ]), multipleUpload);
 
-// Route to get NotaryInfo by ID
+router.post("/uploadfiles",upload.fields([
+  {name:'yahoo',maxCount:1}
+]),uploadFile)
+
 router.get('/notaryinfo/:id', getNotaryInfo);
 
-// Route to delete NotaryInfo by ID
+
 router.delete('/notaryinfo/:id', deleteNotaryInfo);
 
-// Route to update NotaryInfo by ID, including file uploads
+
 router.put('/notaryinfo/:id', upload.fields([
-  { name: 'signature', maxCount: 1 },  // Field names must match your form data
+  { name: 'signature', maxCount: 1 },  
   { name: 'initials', maxCount: 1 },
-  // Add more fields as needed
+  
 ]), updateNotaryInfo);
 
 module.exports = router;

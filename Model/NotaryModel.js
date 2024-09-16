@@ -11,7 +11,7 @@ const NotaryInfo = sequelize.define('NotaryInfo', {
     type: DataTypes.STRING,
     allowNull: true,
   },
-  // other fields...
+
 }, {
   timestamps: true,
 });
