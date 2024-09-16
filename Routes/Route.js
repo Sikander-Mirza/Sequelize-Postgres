@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { CreateUser, FindUser, DeleteUser, UpdateUser,CreateClient,CreateSigner, CreateSchedule, uploadFile,getFile,getSignerAndClientInfo, getClientDetails } = require('../Controllers/Controlle.js');
+const { CreateUser, FindUser, DeleteUser, UpdateUser,CreateClient,CreateSigner, CreateSchedule, uploadFile,getFile,getSignerAndClientInfo, getClientDetails,getClientDetailsWithRightJoin } = require('../Controllers/Controlle.js');
 
 router.post('/create', CreateUser);
 router.get('/find/:id', FindUser);
@@ -16,4 +16,5 @@ router.get('/file/:name', getFile);
 
 router.get('/signers-info', getSignerAndClientInfo);
 router.get('/client-details',getClientDetails)
+router.get('/client-details-with-right-join',getClientDetailsWithRightJoin)
 module.exports = router;

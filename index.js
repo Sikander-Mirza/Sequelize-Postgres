@@ -33,16 +33,10 @@ app.use(NotayInfoRoutes);
 
 
 
-ClientModel.hasMany(SignerModel, {
-  foreignKey: "clientId",
-  onDelete: "CASCADE",
-});
+ClientModel.hasMany(SignerModel, { foreignKey: "clientId", onDelete: "CASCADE", });
 SignerModel.belongsTo(ClientModel, { foreignKey: "clientId" });
 
-ClientModel.hasMany(ScheduleModel, {
-  foreignKey: "clientId",
-  onDelete: "CASCADE",
-});
+ClientModel.hasMany(ScheduleModel, { foreignKey: "clientId", onDelete: "CASCADE", });
 ScheduleModel.belongsTo(ClientModel, { foreignKey: "clientId" });
 
 ClientModel.hasMany(FileModel, { foreignKey: "clientId", onDelete: "CASCADE" });

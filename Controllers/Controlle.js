@@ -6,6 +6,8 @@ const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const cloudinary = require('../config/CloudinaryConfig.js'); // Import Cloudinary configuration
 const FileModel = require('../Model/FileModel.js'); // Adjust the path as needed
+const sequelize = require('../infrastructure/db.js');
+
 
 
 const CreateUser = async (req, res) => {
@@ -297,6 +299,36 @@ const getClientDetails = async (req, res) => {
 
 
 
+const getClientDetailsWithRightJoin = async (req, res) => {
+  try {
+    // Adjust the column name to match your database schema
+    const clientsWithRightJoin = await sequelize.query(`
+      SELECT 
+        client."titleCompany",
+        client."ClosingType",
+        signer."SignerName"
+      FROM 
+        "Clients" AS client
+      RIGHT OUTER JOIN 
+        "Signers" AS signer
+      ON 
+        client.id = signer."clientId";  
+    `, {
+      type: sequelize.QueryTypes.SELECT
+    });
+
+    // Send the resulting data as the response
+    res.status(200).json(clientsWithRightJoin);
+  } catch (error) {
+    console.error('Error fetching client details with right outer join:', error.message);
+    res.status(500).json({ error: 'Error fetching client details with right outer join' });
+  }
+};
 
 
-module.exports = {CreateUser,FindUser,DeleteUser,UpdateUser,CreateClient,CreateSigner,CreateSchedule,uploadFile,getFile,getSignerAndClientInfo,getClientDetails}
+
+
+
+
+
+module.exports = {CreateUser,FindUser,DeleteUser,UpdateUser,CreateClient,CreateSigner,CreateSchedule,uploadFile,getFile,getSignerAndClientInfo,getClientDetails,getClientDetailsWithRightJoin}
