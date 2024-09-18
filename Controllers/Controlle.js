@@ -208,26 +208,24 @@ const uploadFile = async (req, res) => {
 
 const getFile = async (req, res) => {
   try {
-    const fileName = req.params.name; // Get the file name from the URL parameters
+    const fileName = req.params.name; 
 
-    console.log('Requested file name:', fileName); // Debugging log to check if file name is received correctly
+    console.log('Requested file name:', fileName); 
 
     // Retrieve the file from the database using Sequelize
     const fileRecord = await FileModel.findOne({ where: { fileName } });
 
     if (!fileRecord) {
-      console.log('File not found in database.'); // Debug log to check if file is missing
-      return res.status(404).json({ message: 'File not found' }); // Return 404 if not found
+      console.log('File not found in database.'); 
+      return res.status(404).json({ message: 'File not found' });
     }
 
-    console.log('File record found:', fileRecord); // Debug log to check file data
+    console.log('File record found:', fileRecord); 
 
-    // Set the appropriate Content-Type and Content-Disposition headers
     res.setHeader('Content-Type', fileRecord.fileType);
     res.setHeader('Content-Disposition', `attachment; filename="${fileRecord.fileName}"`);
 
-    // Send the binary data as the response
-    res.send(fileRecord.fileData); // Ensure this line sends the binary data correctly
+    res.send(fileRecord.fileData); 
   } catch (error) {
     console.error('Error retrieving file:', error);
     res.status(500).json({ message: 'Internal server error', error: error.message });
@@ -275,20 +273,18 @@ const getClientDetails = async (req, res) => {
       attributes: ['titleCompany', 'ClosingType'],
     });
 
-    // Transform the data to the desired format
     const result = clients.map((client) => {
       return {
         titleCompany: client.titleCompany,
         ClosingType: client.ClosingType,
-        SignerName: client.Signers[0]?.SignerName || null, // Get the first signer
+        SignerName: client.Signers[0]?.SignerName || null, 
         SignerEmail: client.Signers[0]?.SignerEmail || null,
         PhoneNumber: client.Signers[0]?.PhoneNumber || null,
-        ScheduleTime: client.Schedules[0]?.ScheduleTime || null, // Get the first schedule
-        DocumentUploaded: client.Files && client.Files.length > 0, // Check if any document is uploaded
+        ScheduleTime: client.Schedules[0]?.ScheduleTime || null, 
+        DocumentUploaded: client.Files && client.Files.length > 0, 
       };
     });
 
-    // Send the transformed data as the response
     res.status(200).json(result);
   } catch (error) {
     console.error('Error fetching client details with signer and schedule:', error.message);
@@ -301,7 +297,6 @@ const getClientDetails = async (req, res) => {
 
 const getClientDetailsWithRightJoin = async (req, res) => {
   try {
-    // Adjust the column name to match your database schema
     const clientsWithRightJoin = await sequelize.query(`
       SELECT 
         client."titleCompany",
